@@ -1,61 +1,103 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
+app.use(cors());
 const port = process.env.PORT || 3001;
 
-app.get("/", (req, res) => res.type('html').send(html));
+const jsonData = require("./static.json");
+const abbrData = require("./abbr.json");
+
+const WORLD_BANK_DATA_INDEX = 1;
+
+const getPPPData = (jsonResponse) => {
+    let mockResponse = jsonResponse;
+    mockResponse = mockResponse[WORLD_BANK_DATA_INDEX];
+    mockResponse = mockResponse.filter((x) => {
+        return (x.value != null);
+    });
+    mockResponse = mockResponse.map((x) => {
+        const retVal = { "country": x.country.value, "date": x.date, "ppp": x.value };
+        return retVal;
+    });
+    mockResponse = mockResponse.reduce((acc, curr) => {
+        return Object.assign(Object.assign({}, acc), { [curr.country]: Object.assign(Object.assign({}, (acc[curr.country] || [])), { [curr.date]: curr.ppp }) });
+    }, {});
+    return mockResponse;
+};
+
+// const getOnlineData = () => {
+//     const year = new Date().getFullYear();
+//     return new Promise((resolve, reject) => {
+//         axios.get(`https://api.worldbank.org/v2/en/country/all/indicator/PA.NUS.PPP?format=json&per_page=20000&source=2&date=${year - 5}:${year}`)
+//             .then(function (response) {
+//                 resolve(response.data);
+//             })
+//             .catch(function (error) {
+//                 reject(error);
+//             });
+//     });
+// };
+
+const getPPPCountries = (PPPData) => {
+    const returnResponse = Object.keys(PPPData).sort()
+        .map((country) => {
+            return { country, value: country };
+        });
+    return returnResponse;
+};
+
+function calculatePPP(PPPData, sourceAmount, sourceCountry, targetCountry) {
+    const PPPDatasourceCountry = PPPData[sourceCountry];
+    const PPPDatatargetCountry = PPPData[targetCountry];
+    const SourcePPP = PPPDatasourceCountry[Math.max(...Object.keys(PPPDatasourceCountry).map((x) => parseInt(x)))];
+    const TargetPPP = PPPDatatargetCountry[Math.max(...Object.keys(PPPDatatargetCountry).map((x) => parseInt(x)))];
+    const targetAmount = (sourceAmount / SourcePPP * TargetPPP).toFixed(2);
+    const sourceCountryAbbr = abbrData.filter((c) => {
+        return c.country == sourceCountry;
+    });
+    const targetCountryAbbr = abbrData.filter((c) => {
+        return c.country == targetCountry;
+    });
+    return {
+        sourceAmount,
+        sourceCountry,
+        targetCountry,
+        targetAmount,
+        sourceCountryAbbr,
+        targetCountryAbbr,
+    };
+}
+
+
+
+
+app.get('/pppdata', (request, response) => {
+    // console.log("body ", request.body);
+    // console.log("query ", request.query);
+    // console.log("params ", request.params);
+    // console.log("method", request.method);
+    const r = jsonData;
+    // const r = await getOnlineData();
+    const PPPData = getPPPData(r);
+    try {
+        if (request.query.method == "countries") {
+            return response.status(200).json(getPPPCountries(PPPData));
+        }
+        if (request.query.method == "data") {
+            return response.status(200).json(PPPData);
+        }
+        if (request.query.method == "calculate") {
+            const sourceAmount = request.query.sourceAmount;
+            const sourceCountry = request.query.sourceCountry;
+            const targetCountry = request.query.targetCountry;
+            return response.status(200).json(calculatePPP(PPPData, sourceAmount, sourceCountry, targetCountry));
+        }
+    } catch (e) {
+        return response.status(400).json(e);
+    }
+})
 
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
-
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
