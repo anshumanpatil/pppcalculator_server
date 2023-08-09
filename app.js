@@ -52,12 +52,16 @@ function calculatePPP(PPPData, sourceAmount, sourceCountry, targetCountry) {
     const SourcePPP = PPPDatasourceCountry[Math.max(...Object.keys(PPPDatasourceCountry).map((x) => parseInt(x)))];
     const TargetPPP = PPPDatatargetCountry[Math.max(...Object.keys(PPPDatatargetCountry).map((x) => parseInt(x)))];
     const targetAmount = (sourceAmount / SourcePPP * TargetPPP).toFixed(2);
-    const sourceCountryAbbr = abbrData.filter((c) => {
+    let sourceCountryAbbr = abbrData.filter((c) => {
         return c.country == sourceCountry;
     });
-    const targetCountryAbbr = abbrData.filter((c) => {
-        return c.country == targetCountry;
+    let targetCountryAbbr = abbrData.filter((c) => {
+        return c.country.toLocaleLowerCase().indexOf(targetCountry.toLocaleLowerCase()) >= 0 || targetCountry.toLocaleLowerCase().indexOf(c.country.toLocaleLowerCase()) >= 0;
     });
+
+    sourceCountryAbbr = sourceCountryAbbr.length ? sourceCountryAbbr : [{country: '', currency_name: '', currency_code: ''}];
+    targetCountryAbbr = targetCountryAbbr.length ? targetCountryAbbr : [{country: '', currency_name: '', currency_code: ''}];
+
     return {
         sourceAmount,
         sourceCountry,
