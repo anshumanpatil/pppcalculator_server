@@ -1,0 +1,97 @@
+{
+	"info": {
+		"_postman_id": "561ba56b-5bf6-455d-b686-a46a77399729",
+		"name": "private",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24939068"
+	},
+	"item": [
+		{
+			"name": "ppp Calculate",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sourceAmount\": 200000,\r\n    \"sourceCountry\": \"Afghanistan\",\r\n    \"targetCountry\": \"Albania\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qiy757a2c6ytdbqewmh5a7ofji0odvru.lambda-url.eu-north-1.on.aws?method=calculate",
+					"protocol": "https",
+					"host": [
+						"qiy757a2c6ytdbqewmh5a7ofji0odvru",
+						"lambda-url",
+						"eu-north-1",
+						"on",
+						"aws"
+					],
+					"query": [
+						{
+							"key": "method",
+							"value": "calculate"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ppp Countries",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://qiy757a2c6ytdbqewmh5a7ofji0odvru.lambda-url.eu-north-1.on.aws?method=countries",
+					"protocol": "https",
+					"host": [
+						"qiy757a2c6ytdbqewmh5a7ofji0odvru",
+						"lambda-url",
+						"eu-north-1",
+						"on",
+						"aws"
+					],
+					"query": [
+						{
+							"key": "method",
+							"value": "countries"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ppp Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://qiy757a2c6ytdbqewmh5a7ofji0odvru.lambda-url.eu-north-1.on.aws?method=data",
+					"protocol": "https",
+					"host": [
+						"qiy757a2c6ytdbqewmh5a7ofji0odvru",
+						"lambda-url",
+						"eu-north-1",
+						"on",
+						"aws"
+					],
+					"query": [
+						{
+							"key": "method",
+							"value": "data"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
