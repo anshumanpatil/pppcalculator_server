@@ -75,11 +75,11 @@ export const handler = async (event, context, callback) => {
       response.body = JSON.stringify(PPPData);
     }
     if (query.method == "calculate") {
-      const body = JSON.parse(event.body);
+      // const body = JSON.parse(event.body);
 
-      const sourceAmount = body.sourceAmount;
-      const sourceCountry = body.sourceCountry;
-      const targetCountry = body.targetCountry;
+      const sourceAmount = query.sourceAmount;
+      const sourceCountry = query.sourceCountry;
+      const targetCountry = query.targetCountry;
       response.statusCode = 200;
       const resultCalculation = calculatePPP(PPPData, sourceAmount, sourceCountry, targetCountry);
       response.body = JSON.stringify(resultCalculation);
